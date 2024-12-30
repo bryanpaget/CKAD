@@ -1,0 +1,186 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: <deployment-name>
+spec:
+  replicas: <number-of-replicas>
+  selector:
+    matchLabels:
+      app: <app-name>
+  template:
+    metadata:
+      labels:
+        app: <app-name>
+    spec:
+      containers:
+      - name: <container-name>
+        image: <image-name>
+        ports:
+        - containerPort: <port-number>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: <service-name>
+spec:
+  selector:
+    app: <app-name>
+  ports:
+  - protocol: TCP
+    port: <service-port>
+    targetPort: <container-port>
+  type: ClusterIP # Use LoadBalancer or NodePort as needed
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <configmap-name>
+data:
+  <key1>: <value1>
+  <key2>: |
+    <multi-line-value>
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: <pvc-name>
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: <size> # e.g., 1Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: <ingress-name>
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: <your-domain.com>
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: <service-name>
+            port:
+              number: <service-port>
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: <job-name>
+spec:
+  template:
+    spec:
+      containers:
+      - name: <container-name>
+        image: <image-name>
+        command: ["<your-command>"]
+      restartPolicy: Never
+  backoffLimit: 4
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: <cronjob-name>
+spec:
+  schedule: "<cron-schedule>" # e.g., "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: <container-name>
+            image: <image-name>
+            command: ["<your-command>"]
+          restartPolicy: OnFailure
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: <statefulset-name>
+spec:
+  serviceName: <headless-service-name>
+  replicas: <number-of-replicas>
+  selector:
+    matchLabels:
+      app: <app-name>
+  template:
+    metadata:
+      labels:
+        app: <app-name>
+    spec:
+      containers:
+      - name: <container-name>
+        image: <image-name>
+        ports:
+        - containerPort: <port-number>
+        volumeMounts:
+        - name: <volume-name>
+          mountPath: <mount-path>
+  volumeClaimTemplates:
+  - metadata:
+      name: <volume-name>
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: <size> # e.g., 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: <statefulset-name>
+spec:
+  serviceName: <headless-service-name>
+  replicas: <number-of-replicas>
+  selector:
+    matchLabels:
+      app: <app-name>
+  template:
+    metadata:
+      labels:
+        app: <app-name>
+    spec:
+      containers:
+      - name: <container-name>
+        image: <image-name>
+        ports:
+        - containerPort: <port-number>
+        volumeMounts:
+        - name: <volume-name>
+          mountPath: <mount-path>
+  volumeClaimTemplates:
+  - metadata:
+      name: <volume-name>
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: <size> # e.g., 1Gi
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: <hpa-name>
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: <deployment-name>
+  minReplicas: <min-replicas>
+  maxReplicas: <max-replicas>
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
